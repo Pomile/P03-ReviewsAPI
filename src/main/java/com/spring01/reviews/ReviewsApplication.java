@@ -1,4 +1,4 @@
-package com.udacity.course3.reviews;
+package com.spring01.reviews;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

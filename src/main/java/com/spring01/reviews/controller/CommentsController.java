@@ -1,4 +1,4 @@
-package com.udacity.course3.reviews.controller;
+package com.spring01.reviews.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
