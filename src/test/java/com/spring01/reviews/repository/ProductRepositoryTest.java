@@ -86,6 +86,18 @@ public class ProductRepositoryTest {
     }
 
     @Test
+    public void c_findProductByProductCode(){
+
+        Optional<Product> actualByProductCode = productRepository.findByProductcode("44344AB");
+        if(actualByProductCode.isPresent()){
+            System.err.println("product ID: " + actualByProductCode.get().getId());
+            System.err.println("product desc: " + actualByProductCode.get().getDescription());
+            assertThat(actualByProductCode).isNotNull();
+            assertEquals(actualByProductCode.get().getDescription(), "Nutritious Margarine");
+        }
+    }
+
+    @Test
     public void deleteProduct(){
          productRepository.deleteById(productId);
         Optional<Product> actualById = productRepository.findById(productId);
