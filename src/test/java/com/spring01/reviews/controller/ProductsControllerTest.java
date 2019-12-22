@@ -21,7 +21,7 @@ import java.net.URI;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @RunWith(SpringRunner.class)
@@ -40,6 +40,8 @@ public class ProductsControllerTest {
         Product product = new Product();
         product.setId(1L);
         given(productService.save(any())).willReturn(product);
+        given(productService.findById(1)).willReturn(java.util.Optional.of(product));
+        given(productService.findByProductCode("44344AB")).willReturn(java.util.Optional.of(product));
     }
     @Test
     public void shouldCreateProduct() throws Exception {
@@ -120,6 +122,74 @@ public class ProductsControllerTest {
                 .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
                 .andExpect(jsonPath("$.errors[0].stock")
                         .value("stock must be greater than or equal to 1.0"));
+    }
+
+    @Test
+    public void shouldReturnAProduct() throws Exception {
+
+        mvc.perform(get(new URI("/products/1"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1));
+    }
+    @Test
+    public void shouldReturnClientErrorIfIfProductIdIsZero() throws Exception {
+
+        mvc.perform(get(new URI("/products/0"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().is4xxClientError())
+                .andExpect(jsonPath("$.message").value("Invalid id"));
+    }
+    @Test
+    public void shoulReturnClientErrorIfProductIdIsNegative() throws Exception {
+
+        mvc.perform(get(new URI("/products/-1"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().is4xxClientError())
+                .andExpect(jsonPath("$.message").value("Invalid id"));
+    }
+
+    @Test
+    public void shoulReturnNotFoundIfProductIdDoesNotExist() throws Exception {
+
+        mvc.perform(get(new URI("/products/20"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("Product not found"));
+    }
+
+    @Test
+    public void shouldReturnProductCode() throws Exception {
+
+        mvc.perform(get(new URI("/products/product?code=44344AB"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1L));
+    }
+
+    @Test
+    public void shouldReturnBadRequestWithIinvalidProductCode() throws Exception {
+
+        mvc.perform(get(new URI("/products/product?code=44"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().is4xxClientError())
+                .andExpect(jsonPath("$.message").value("Invalid product code"));
+    }
+
+    @Test
+    public void shouldReturnNotFoundIfProductCodeDoesNotExist() throws Exception {
+
+        mvc.perform(get(new URI("/products/product?code=44gfgfhg"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("Product not found"));
     }
 
     private Product product(){
