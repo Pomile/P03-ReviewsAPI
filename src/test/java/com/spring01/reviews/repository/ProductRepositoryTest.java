@@ -36,6 +36,7 @@ public class ProductRepositoryTest {
     @Autowired private EntityManager entityManager;
     @Autowired private TestEntityManager testEntityManager;
     @Autowired private ProductRepository productRepository;
+    @Autowired private ProductRepositoryImpl productRepositoryImpl;
     private Long productId;
     private Optional<Product> actual;
 
@@ -96,7 +97,11 @@ public class ProductRepositoryTest {
             assertEquals(actualByProductCode.get().getDescription(), "Nutritious Margarine");
         }
     }
-
+    @Test
+    public void c_findAllProductsOrderedById(){
+        List<Product> products = productRepositoryImpl.findAllProductsOrderedById(2, 0);
+        assertThat(products.size()).isEqualTo(1);
+    }
     @Test
     public void deleteProduct(){
          productRepository.deleteById(productId);

@@ -18,6 +18,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -39,9 +41,12 @@ public class ProductsControllerTest {
     public void setup() {
         Product product = new Product();
         product.setId(1L);
+        List<Product> products = new ArrayList<>();
+        products.add(product);
         given(productService.save(any())).willReturn(product);
         given(productService.findById(1)).willReturn(java.util.Optional.of(product));
         given(productService.findByProductCode("44344AB")).willReturn(java.util.Optional.of(product));
+        given(productService.findAllProducts(2, 0)).willReturn(products);
     }
     @Test
     public void shouldCreateProduct() throws Exception {
@@ -131,7 +136,7 @@ public class ProductsControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1));
+                 .andExpect(jsonPath("$.id").value(1));
     }
     @Test
     public void shouldReturnClientErrorIfIfProductIdIsZero() throws Exception {
@@ -191,7 +196,15 @@ public class ProductsControllerTest {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message").value("Product not found"));
     }
+    @Test
+    public void shouldReturnALLProductsWithLimit() throws Exception {
 
+        mvc.perform(get(new URI("/products?limit=2&offset=0"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(1));
+    }
     private Product product(){
         Product product = new Product();
         product.setName("Blue band");
