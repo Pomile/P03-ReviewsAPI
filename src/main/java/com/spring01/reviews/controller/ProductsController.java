@@ -7,7 +7,6 @@ import com.spring01.reviews.service.ProductService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -94,9 +93,15 @@ class ProductsController {
      *
      * @return The list of products.
      */
-    @RequestMapping(value = "", method = RequestMethod.GET)
-    public List<?> listProducts() {
-        System.out.println("Serving is running");
-        throw new HttpServerErrorException(HttpStatus.NOT_IMPLEMENTED);
+    @RequestMapping(value = "")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<List<Product>>listProducts(
+            @RequestParam(name="limit")
+            @Min(value = 1, message = "List of products must be greater than or equal to 1") Integer limit,
+            @RequestParam(name="offset")
+            @Min(value = 0, message = "First Start must be greater than or equal to 0") Integer offset) {
+        List<Product> products = productService.findAllProducts(limit, offset);
+        return new ResponseEntity<List<Product>>(products, HttpStatus.OK);
+
     }
 }

@@ -2,7 +2,9 @@ package com.spring01.reviews.service;
 
 import com.spring01.reviews.model.Product;
 import com.spring01.reviews.repository.ProductRepository;
+import com.spring01.reviews.repository.ProductRepositoryImpl;
 import org.junit.Before;
+import org.mockito.Mock;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -11,6 +13,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.mockito.Mockito;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -21,6 +25,7 @@ import static org.mockito.ArgumentMatchers.any;
 public class ProductServiceTest {
 
     @MockBean private ProductRepository productRepository;
+    @MockBean private ProductRepositoryImpl productRepositoryImpl;
     @Autowired private ProductService productService;
 
     @Before
@@ -36,6 +41,19 @@ public class ProductServiceTest {
         Optional<Product> product1 = Optional.ofNullable(productService.save(product));
         assertEquals("Blue band", product1.get().getName());
         assertEquals(1L, product1.get().getId());
+    }
+    @Test
+    public void findAllProducts() {
+        Product product = product();
+        product.setId(1L);
+        List<Product> products = new ArrayList<>();
+        products.add(product);
+        Mockito.when(
+                productRepositoryImpl.findAllProductsOrderedById(2, 0))
+                .thenReturn(products);
+
+        List<Product> prods = productService.findAllProducts(2, 0);
+        assertEquals(1, prods.size());
     }
 
     private Product product(){

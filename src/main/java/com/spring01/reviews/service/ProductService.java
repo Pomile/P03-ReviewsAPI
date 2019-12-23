@@ -2,8 +2,10 @@ package com.spring01.reviews.service;
 
 import com.spring01.reviews.model.Product;
 import com.spring01.reviews.repository.ProductRepository;
+import com.spring01.reviews.repository.ProductRepositoryImpl;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -13,9 +15,11 @@ import java.util.Optional;
 @Service
 public class ProductService{
     private ProductRepository productRepository;
+    private ProductRepositoryImpl productRepositoryImpl;
 
-    public ProductService(ProductRepository productRepository) {
+    public ProductService(ProductRepository productRepository, ProductRepositoryImpl productRepositoryImpl) {
         this.productRepository = productRepository;
+        this.productRepositoryImpl = productRepositoryImpl;
     }
 
     /**
@@ -43,5 +47,15 @@ public class ProductService{
      */
     public Optional<Product> findByProductCode(String code){
         return productRepository.findByProductcode(code);
+    }
+
+    /**
+     ** find a Product by productCode
+     * @param limit an integer
+     * @param offset an integer
+     * @return a list of products
+     */
+    public List<Product> findAllProducts(Integer limit, Integer offset){
+        return productRepositoryImpl.findAllProductsOrderedById(limit, offset);
     }
 }
