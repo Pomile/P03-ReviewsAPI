@@ -9,11 +9,10 @@ public interface ProductRepository extends CrudRepository<Product, Long> {
 
     @Override
     Optional<Product> findById(Long aLong);
-
+    @Override
+    void deleteById(Long aLong);
     Optional<Product> findByName(String name);
-
     Optional<Product> findByProductcode(String productCode);
-
     List<Product> findAllProductsOrderedById(Integer limit, Integer offset);
 
 

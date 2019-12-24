@@ -1,12 +1,9 @@
 package com.spring01.reviews.service;
 
-import com.spring01.reviews.exception.ProductNotFoundException;
 import com.spring01.reviews.model.Product;
 import com.spring01.reviews.repository.ProductRepository;
 import com.spring01.reviews.repository.ProductRepositoryImpl;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -65,4 +62,15 @@ public class ProductService{
     public List<Product> findAllProducts(Integer limit, Integer offset){
         return productRepositoryImpl.findAllProductsOrderedById(limit, offset);
     }
+
+    /**
+     ** Remove a Product by Id
+     * @param id an integer
+     * @return a product
+     */
+    public Void removeById(Integer id){
+        productRepository.deleteById(Long.valueOf(id));
+        return null;
+    }
+
 }

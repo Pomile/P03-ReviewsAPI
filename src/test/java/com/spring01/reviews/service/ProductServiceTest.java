@@ -4,6 +4,7 @@ import com.spring01.reviews.model.Product;
 import com.spring01.reviews.repository.ProductRepository;
 import com.spring01.reviews.repository.ProductRepositoryImpl;
 import org.junit.Before;
+import org.mockito.internal.matchers.Null;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -67,6 +68,13 @@ public class ProductServiceTest {
 
         Product prods = productService.update(product);
         assertEquals(400.0, prods.getPrice());
+    }
+
+    @Test
+    public void removeProduct() {
+
+        Void prods = productService.removeById(1);
+        assertEquals(null, prods);
     }
 
     private Product product(){
