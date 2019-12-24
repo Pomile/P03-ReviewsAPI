@@ -127,9 +127,9 @@ class ProductsController {
     }
 
     /**
-     * Finds a product by id.
+     * Delete a product by id.
      * @param id The id of the product.
-     * @return The product if found, or a 404 not found.
+     * @return No content
      */
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     @ResponseStatus(HttpStatus.NO_CONTENT)
