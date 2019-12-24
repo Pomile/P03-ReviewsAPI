@@ -16,13 +16,16 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -37,16 +40,22 @@ public class ProductsControllerTest {
     @Autowired private JacksonTester<Product> json;
     @MockBean private ProductService productService;
 
+
     @Before
-    public void setup() {
+    public void setup() throws URISyntaxException {
         Product product = new Product();
+        Product product1 = new Product();
         product.setId(1L);
+        product1.setPrice(300.00);
+        product1.setStock(50);
         List<Product> products = new ArrayList<>();
         products.add(product);
-        given(productService.save(any())).willReturn(product);
         given(productService.findById(1)).willReturn(java.util.Optional.of(product));
+        given(productService.save(any())).willReturn(product);
         given(productService.findByProductCode("44344AB")).willReturn(java.util.Optional.of(product));
         given(productService.findAllProducts(2, 0)).willReturn(products);
+        given(productService.update(new Product())).willReturn(product1);
+
     }
     @Test
     public void shouldCreateProduct() throws Exception {
@@ -68,7 +77,7 @@ public class ProductsControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().is4xxClientError())
-                .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
+                .andExpect(jsonPath("$.error").value("BAD_REQUEST"))
                 .andExpect(jsonPath("$.errors[0].name")
                         .value("product name cannot be empty"));;
     }
@@ -82,7 +91,7 @@ public class ProductsControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().is4xxClientError())
-                .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
+                .andExpect(jsonPath("$.error").value("BAD_REQUEST"))
                 .andExpect(jsonPath("$.errors[0].image")
                         .value("image url cannot be empty"));;
     }
@@ -96,7 +105,7 @@ public class ProductsControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().is4xxClientError())
-                .andExpect(jsonPath("$.status")
+                .andExpect(jsonPath("$.error")
                         .value("BAD_REQUEST"))
                 .andExpect(jsonPath("$.errors[0].productcode")
                         .value("product code cannot be empty"));
@@ -124,7 +133,7 @@ public class ProductsControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().is4xxClientError())
-                .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
+                .andExpect(jsonPath("$.error").value("BAD_REQUEST"))
                 .andExpect(jsonPath("$.errors[0].stock")
                         .value("stock must be greater than or equal to 1.0"));
     }
@@ -145,7 +154,7 @@ public class ProductsControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().is4xxClientError())
-                .andExpect(jsonPath("$.message").value("Invalid id"));
+                .andExpect(jsonPath("$.errors.[0].0").value("Invalid id"));
     }
     @Test
     public void shoulReturnClientErrorIfProductIdIsNegative() throws Exception {
@@ -154,7 +163,7 @@ public class ProductsControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().is4xxClientError())
-                .andExpect(jsonPath("$.message").value("Invalid id"));
+                .andExpect(jsonPath("$.error").value("BAD_REQUEST"));
     }
 
     @Test
@@ -164,7 +173,7 @@ public class ProductsControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.message").value("Product not found"));
+                .andExpect(jsonPath("$.errors[0]").value("Product not found"));
     }
 
     @Test
@@ -184,7 +193,7 @@ public class ProductsControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().is4xxClientError())
-                .andExpect(jsonPath("$.message").value("Invalid product code"));
+                .andExpect(jsonPath("$.errors.[0].44").value("Invalid product code"));
     }
 
     @Test
@@ -194,7 +203,7 @@ public class ProductsControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.message").value("Product not found"));
+                .andExpect(jsonPath("$.errors.[0]").value("Product not found"));
     }
     @Test
     public void shouldReturnALLProductsWithLimit() throws Exception {
@@ -205,6 +214,32 @@ public class ProductsControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(1));
     }
+    @Test
+    public void shouldUpdateAproduct() throws Exception {
+        Product product = product();
+        product.setPrice(300.00);
+        product.setStock(50);
+        mvc.perform(put(new URI("/products/1"))
+                .content(json.write(product).getJson())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.price").value(300.00));
+    }
+
+    @Test
+    public void shouldNotUpdate() throws Exception {
+        Product product = product();
+        product.setPrice(300.00);
+        product.setStock(50);
+        mvc.perform(put(new URI("/products/100"))
+                .content(json.write(product).getJson())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.errors[0]").value("Product not found"));
+    }
+
     private Product product(){
         Product product = new Product();
         product.setName("Blue band");
@@ -216,4 +251,5 @@ public class ProductsControllerTest {
 
         return  product;
     }
+
 }

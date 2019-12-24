@@ -1,9 +1,12 @@
 package com.spring01.reviews.service;
 
+import com.spring01.reviews.exception.ProductNotFoundException;
 import com.spring01.reviews.model.Product;
 import com.spring01.reviews.repository.ProductRepository;
 import com.spring01.reviews.repository.ProductRepositoryImpl;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -31,6 +34,10 @@ public class ProductService{
         return productRepository.save(product);
     }
 
+    public Product update(Product product){
+        return productRepository.save(product);
+    }
+
     /**
      ** find a Product by Id
      * @param id an integer
@@ -50,7 +57,7 @@ public class ProductService{
     }
 
     /**
-     ** find a Product by productCode
+     ** find all products with limit starting from offset position
      * @param limit an integer
      * @param offset an integer
      * @return a list of products

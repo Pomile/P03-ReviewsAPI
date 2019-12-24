@@ -4,7 +4,6 @@ import com.spring01.reviews.model.Product;
 import com.spring01.reviews.repository.ProductRepository;
 import com.spring01.reviews.repository.ProductRepositoryImpl;
 import org.junit.Before;
-import org.mockito.Mock;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -54,6 +53,20 @@ public class ProductServiceTest {
 
         List<Product> prods = productService.findAllProducts(2, 0);
         assertEquals(1, prods.size());
+    }
+    @Test
+    public void updateProduct() {
+        Product product = product();
+        product.setId(1L);
+        product.setPrice(400.0);
+        List<Product> products = new ArrayList<>();
+        products.add(product);
+        Mockito.when(
+                productRepository.save(product))
+                .thenReturn(product);
+
+        Product prods = productService.update(product);
+        assertEquals(400.0, prods.getPrice());
     }
 
     private Product product(){

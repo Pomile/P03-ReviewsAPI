@@ -1,10 +1,11 @@
 package com.spring01.reviews.exception;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import com.spring01.reviews.model.Product;
+import com.spring01.reviews.service.ProductService;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,11 +20,11 @@ import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
-import javax.websocket.server.PathParam;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @RestControllerAdvice
 public class RestResponseEntityExceptionHandler {
-
+    @Autowired private ProductService productService;
     @ExceptionHandler(value={MethodArgumentNotValidException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
@@ -37,7 +38,7 @@ public class RestResponseEntityExceptionHandler {
             error.put(fieldName, errorMessage);
             errors.add(error);
         });
-        ErrorWrapper badRequest = new ErrorWrapper(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage(), errors);
+        ClientError badRequest = new ClientError(400, HttpStatus.BAD_REQUEST, errors);
         return new ResponseEntity<>(badRequest, HttpStatus.BAD_REQUEST );
     }
 
@@ -45,27 +46,25 @@ public class RestResponseEntityExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<?> handleBadNumReqValidationExceptions(
             ConstraintViolationException ex) {
-        StringBuilder msg = new StringBuilder();
         List<Map<String, String>> errors = new ArrayList<Map<String, String>>();
         for(ConstraintViolation<?> violation: ex.getConstraintViolations()){
             Map<String, String> err = new HashMap<String, String>();
             err.put( "" + violation.getInvalidValue(), violation.getMessage());
-            msg.append(violation.getMessage());
             errors.add(err);
         }
-        ErrorWrapper badRequest = new ErrorWrapper(HttpStatus.BAD_REQUEST, msg.toString(), errors);
+        ClientError badRequest = new ClientError(400, HttpStatus.BAD_REQUEST, errors);
         return new ResponseEntity<>(badRequest, HttpStatus.BAD_REQUEST );
     }
 
     @ExceptionHandler(value={NumberFormatException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<?> handleBadNum1ReqValidationExceptions(
-            NumberFormatException ex) {
-        String msg = "Type MisMatch. Path parameter must be an integer";
+            NumberFormatException ex, WebRequest request) {
         List<String> errors = new ArrayList<String>();
+
         errors.add("Path parameter error " + ex.getMessage().toLowerCase());
 
-        ErrorWrapper badRequest = new ErrorWrapper(HttpStatus.BAD_REQUEST, msg, errors);
+        ClientError badRequest = new ClientError(400, HttpStatus.BAD_REQUEST, errors);
         return new ResponseEntity<>(badRequest, HttpStatus.BAD_REQUEST );
     }
 
@@ -75,11 +74,12 @@ public class RestResponseEntityExceptionHandler {
             ResponseStatusException ex) {
         String msg = ex.getReason();
         List<String> errors = new ArrayList<String>();
-        errors.add(ex.getRootCause() + " - " + ex.getMessage());
-
-        ErrorWrapper badRequest = new ErrorWrapper(HttpStatus.NOT_FOUND, msg, errors);
-        return new ResponseEntity<>(badRequest, HttpStatus.NOT_FOUND );
+        errors.add(ex.getReason());
+        System.err.println(ex.getHeaders().get("path"));
+        ClientError notFoundRequest = new ClientError(404, HttpStatus.NOT_FOUND, errors);
+        return new ResponseEntity<>(notFoundRequest, HttpStatus.NOT_FOUND );
     }
+
 
     @ExceptionHandler(value
             = { DataIntegrityViolationException.class })
@@ -87,8 +87,16 @@ public class RestResponseEntityExceptionHandler {
     @ResponseBody
     public ResponseEntity<?> handleConflict(
             DataIntegrityViolationException ex, WebRequest request) {
-        System.err.println(ex.getStackTrace());
-        ErrorWrapper conflict = new ErrorWrapper(HttpStatus.CONFLICT, ex.getLocalizedMessage());
+        StringBuilder message = new StringBuilder();
+        List<String> messages = Arrays.asList(ex.getMessage().split(";"));
+        List<String> errors = new ArrayList<String>();
+        Pattern pat = Pattern.compile("_(.*?)_");
+        Matcher matcher = pat.matcher(messages.get(2));
+        while (matcher.find()){
+            String res = matcher.group(1);
+            errors.add(res + " already exists");
+        }
+        ClientError conflict = new ClientError(409, HttpStatus.CONFLICT, errors);
         return new ResponseEntity<>(conflict, HttpStatus.CONFLICT);
     }
 }
