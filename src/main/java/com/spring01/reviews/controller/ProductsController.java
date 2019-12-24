@@ -125,4 +125,24 @@ class ProductsController {
         return new ResponseEntity<List<Product>>(products, HttpStatus.OK);
 
     }
+
+    /**
+     * Delete a product by id.
+     * @param id The id of the product.
+     * @return No content
+     */
+    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public ResponseEntity<?> removeById(
+            @PathVariable("id")
+            @Min(value = 1, message="Invalid id")
+                    Integer id) {
+        Optional<Product> optionalProduct = productService.findById(id);
+        if (optionalProduct.isPresent()){
+            productService.removeById(id);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+        throw new  ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found");
+    }
+
 }

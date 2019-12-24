@@ -147,6 +147,7 @@ public class ProductsControllerTest {
                 .andExpect(status().isOk())
                  .andExpect(jsonPath("$.id").value(1));
     }
+
     @Test
     public void shouldReturnClientErrorIfIfProductIdIsZero() throws Exception {
 
@@ -156,6 +157,7 @@ public class ProductsControllerTest {
                 .andExpect(status().is4xxClientError())
                 .andExpect(jsonPath("$.errors.[0].0").value("Invalid id"));
     }
+
     @Test
     public void shoulReturnClientErrorIfProductIdIsNegative() throws Exception {
 
@@ -205,6 +207,7 @@ public class ProductsControllerTest {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.errors.[0]").value("Product not found"));
     }
+
     @Test
     public void shouldReturnALLProductsWithLimit() throws Exception {
 
@@ -214,6 +217,7 @@ public class ProductsControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(1));
     }
+
     @Test
     public void shouldUpdateAproduct() throws Exception {
         Product product = product();
@@ -238,6 +242,15 @@ public class ProductsControllerTest {
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.errors[0]").value("Product not found"));
+    }
+
+    @Test
+    public void shouldRemoveAProduct() throws Exception {
+
+        mvc.perform(delete(new URI("/products/1"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent());
     }
 
     private Product product(){
