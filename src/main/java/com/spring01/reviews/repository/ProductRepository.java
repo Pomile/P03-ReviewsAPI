@@ -7,6 +7,8 @@ import java.util.Optional;
 
 public interface ProductRepository extends CrudRepository<Product, Long> {
 
+    @Override
+    Optional<Product> findById(Long aLong);
 
     Optional<Product> findByName(String name);
 
@@ -14,7 +16,5 @@ public interface ProductRepository extends CrudRepository<Product, Long> {
 
     List<Product> findAllProductsOrderedById(Integer limit, Integer offset);
 
-    @Override
-    Optional<Product> findById(Long aLong);
 
 }

@@ -51,12 +51,33 @@ class ProductsController {
     }
 
     /**
+     * Update a product
+     * @param prod is an object
+     * @Return an object which shows the new update
+     * */
+    @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<Product> update(
+            @Valid @RequestBody Product prod,
+            @PathVariable("id") @Min(value = 1, message = "Product id must be greater than or to 1") Long id ){
+        Optional<Product> optionalProduct = productService.findById(Math.toIntExact(id));
+        if(optionalProduct.isPresent() ){
+            if(optionalProduct.get().getProductCode().equals(prod.getProductCode())){
+                prod.setId(id);
+                Optional<Product> product = Optional.ofNullable(productService.save(prod));
+                return new ResponseEntity<Product>(product.get(), HttpStatus.OK);
+            }
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Product Mismatch");
+        }
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found");
+    }
+
+    /**
      * Finds a product by id.
-     *
      * @param id The id of the product.
      * @return The product if found, or a 404 not found.
      */
-    @RequestMapping(value = "/{id}")
+    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<?> findById(
             @PathVariable("id")
@@ -75,7 +96,7 @@ class ProductsController {
      * @param code The id of the product.
      * @return The product if found, or a 404 not found.
      */
-    @RequestMapping("/product")
+    @RequestMapping(value = "/product", method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<?> findByCode(
             @RequestParam(name="code")
@@ -97,9 +118,9 @@ class ProductsController {
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<List<Product>>listProducts(
             @RequestParam(name="limit")
-            @Min(value = 1, message = "List of products must be greater than or equal to 1") Integer limit,
+            @Min(value = 1, message = "Limit of products must be greater than or equal to 1") Integer limit,
             @RequestParam(name="offset")
-            @Min(value = 0, message = "First Start must be greater than or equal to 0") Integer offset) {
+            @Min(value = 0, message = "Offset must be greater than or equal to 0") Integer offset) {
         List<Product> products = productService.findAllProducts(limit, offset);
         return new ResponseEntity<List<Product>>(products, HttpStatus.OK);
 

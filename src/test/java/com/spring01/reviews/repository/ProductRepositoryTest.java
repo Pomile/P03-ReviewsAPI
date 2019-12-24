@@ -102,6 +102,7 @@ public class ProductRepositoryTest {
         List<Product> products = productRepositoryImpl.findAllProductsOrderedById(2, 0);
         assertThat(products.size()).isEqualTo(1);
     }
+
     @Test
     public void deleteProduct(){
          productRepository.deleteById(productId);
