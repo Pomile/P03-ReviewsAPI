@@ -1,11 +1,19 @@
 package com.spring01.reviews.controller;
 
+import com.spring01.reviews.model.Product;
+import com.spring01.reviews.model.Review;
+import org.springframework.web.server.ResponseStatusException;
+import com.spring01.reviews.service.ProductService;
+import com.spring01.reviews.service.ReviewService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.validation.Valid;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Spring REST controller for working with review entity.
@@ -14,6 +22,13 @@ import java.util.List;
 public class ReviewsController {
 
     // TODO: Wire JPA repositories here
+    @Autowired private ReviewService reviewService;
+    @Autowired private ProductService productService;
+
+    public ReviewsController(ReviewService reviewService, ProductService productService) {
+        this.reviewService = reviewService;
+        this.productService = productService;
+    }
 
     /**
      * Creates a review for a product.
@@ -27,8 +42,19 @@ public class ReviewsController {
      * @return The created review or 404 if product id is not found.
      */
     @RequestMapping(value = "/reviews/products/{productId}", method = RequestMethod.POST)
-    public ResponseEntity<?> createReviewForProduct(@PathVariable("productId") Integer productId) {
-        throw new HttpServerErrorException(HttpStatus.NOT_IMPLEMENTED);
+    public ResponseEntity<Object> createReviewForProduct(@Valid @RequestBody Review review, @PathVariable("productId") Long productId) {
+       Optional<Product> product = productService.findById(Math.toIntExact(productId));
+       if (product.isPresent()){
+           review.setProductId(productId);
+           review.setProduct(product.get());
+           Optional<Review> optionalReview = Optional.ofNullable(reviewService.save(review));
+           if(optionalReview.isPresent()){
+
+              return new ResponseEntity<Object>(optionalReview.get(), HttpStatus.CREATED);
+           }
+       }
+
+       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found");
     }
 
     /**

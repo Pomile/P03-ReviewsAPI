@@ -1,16 +1,21 @@
 package com.spring01.reviews.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.io.Serializable;
+import java.util.List;
 
 @Entity
 @Table(name="products")
-public class Product{
+public class Product implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "product_id")
+    private Long productId;
 
     @NotNull(message = "product name field must be provided")
     @NotBlank(message = "product name cannot be empty")
@@ -36,6 +41,10 @@ public class Product{
     @NotBlank(message = "product code cannot be empty")
     private String productcode;
 
+    @OneToMany(fetch=FetchType.EAGER, mappedBy="product")
+    @JsonIgnore
+    private List<Review> reviews;
+
     public Product() {}
 
     public Product(String name,
@@ -53,11 +62,11 @@ public class Product{
     }
 
     public Long getId() {
-        return id;
+        return productId;
     }
 
     public void setId(Long id) {
-        this.id = id;
+        this.productId = id;
     }
 
     public String getName() {
@@ -106,5 +115,20 @@ public class Product{
 
     public void setProductCode(String productCode) {
         this.productcode = productCode;
+    }
+    public List<Review> getReviews() {
+        return reviews;
+    }
+    public void setReviews(List<Review> reviews) {
+        this.reviews = reviews;
+    }
+    @Override
+    public String toString() {
+        return "Product{" +
+                "productId=" + productId +
+                ", name='" + name + '\'' +
+                ", image='" + image + '\'' +
+                ", createdTime=" + productcode +
+                '}';
     }
 }

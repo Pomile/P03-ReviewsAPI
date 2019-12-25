@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS PRODUCTS(
-    id SERIAL,
+    product_id SERIAL,
     productCode VARCHAR NOT NULL UNIQUE,
     name VARCHAR NOT NULL,
     image TEXT NOT NULL,
@@ -8,6 +8,6 @@ CREATE TABLE IF NOT EXISTS PRODUCTS(
     description VARCHAR NOT NULL,
     createdAt TIMESTAMP NOT NULL DEFAULT NOW(),
     updatedAt TIMESTAMP NOT NULL DEFAULT NOW(),
-    CONSTRAINT products_id_pk
-        PRIMARY KEY (id)
+    CONSTRAINT products_product_id_pk
+        PRIMARY KEY (product_id)
 );

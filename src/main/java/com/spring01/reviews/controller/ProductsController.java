@@ -85,6 +85,7 @@ class ProductsController {
                     Integer id) {
         Optional<Product> optionalProduct = productService.findById(id);
         if (optionalProduct.isPresent()){
+
             return new ResponseEntity<>(optionalProduct.get(), HttpStatus.OK);
         }
         throw new  ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found");
