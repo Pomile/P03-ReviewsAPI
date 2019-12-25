@@ -4,7 +4,6 @@ import com.spring01.reviews.model.Product;
 import com.spring01.reviews.repository.ProductRepository;
 import com.spring01.reviews.repository.ProductRepositoryImpl;
 import org.junit.Before;
-import org.mockito.internal.matchers.Null;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
