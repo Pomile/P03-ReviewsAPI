@@ -66,4 +66,52 @@ public class ReviewsControllerTest {
                 .andExpect(jsonPath("$.id").value(7L)
         );
     }
+
+    @Test
+    public void shouldNotCreateReviewForProductWithEmptyTitle() throws Exception {
+        review.setTitle("");
+        mvc.perform(post(new URI("/reviews/products/1"))
+                .content(json.write(review).getJson())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().is4xxClientError())
+                .andExpect(jsonPath("$.errors[0].title").value("title cannot be empty")
+                );
+    }
+
+    @Test
+    public void shouldNotcreateReviewForProductWithEmptySummary() throws Exception {
+        review.setSummary("");
+        mvc.perform(post(new URI("/reviews/products/1"))
+                .content(json.write(review).getJson())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().is4xxClientError())
+                .andExpect(jsonPath("$.errors[0].summary").value("summary cannot be empty")
+                );
+    }
+
+    @Test
+    public void shouldNotcreateReviewForProductWithNegativeNumber() throws Exception {
+
+        mvc.perform(post(new URI("/reviews/products/-1"))
+                .content(json.write(review).getJson())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().is4xxClientError())
+                .andExpect(jsonPath("$.errors[0].-1").value("Product id must be greater than or to 1")
+                );
+    }
+
+    @Test
+    public void shouldNotcreateReviewForProductWithInvalid() throws Exception {
+
+        mvc.perform(post(new URI("/reviews/products/hhghgdh"))
+                .content(json.write(review).getJson())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().is4xxClientError())
+                .andExpect(jsonPath("$.errors[0]").value("Invalid input for /hhghgdh")
+                );
+    }
 }

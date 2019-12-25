@@ -10,8 +10,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,6 +21,7 @@ import java.util.Optional;
  * Spring REST controller for working with review entity.
  */
 @RestController
+@Validated
 public class ReviewsController {
 
     // TODO: Wire JPA repositories here
@@ -42,7 +45,7 @@ public class ReviewsController {
      * @return The created review or 404 if product id is not found.
      */
     @RequestMapping(value = "/reviews/products/{productId}", method = RequestMethod.POST)
-    public ResponseEntity<Object> createReviewForProduct(@Valid @RequestBody Review review, @PathVariable("productId") Long productId) {
+    public ResponseEntity<Object> createReviewForProduct(@Valid @RequestBody Review review, @PathVariable("productId") @Min(value = 1, message = "Product id must be greater than or to 1")Long productId) {
        Optional<Product> product = productService.findById(Math.toIntExact(productId));
        if (product.isPresent()){
            review.setProductId(productId);

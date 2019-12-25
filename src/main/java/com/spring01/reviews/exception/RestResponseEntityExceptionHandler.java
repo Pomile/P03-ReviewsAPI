@@ -60,8 +60,12 @@ public class RestResponseEntityExceptionHandler {
     public ResponseEntity<?> handleBadNum1ReqValidationExceptions(
             NumberFormatException ex, WebRequest request) {
         List<String> errors = new ArrayList<String>();
-
-        errors.add("Path parameter error " + ex.getMessage().toLowerCase());
+        Pattern pattern = Pattern.compile("\"(.*)\"");
+        Matcher matcher = pattern.matcher(ex.getMessage());
+       while(matcher.find()){
+           String str = matcher.group(1);
+           errors.add("Invalid input for /"+str);
+       }
 
         ClientError badRequest = new ClientError(400, HttpStatus.BAD_REQUEST, errors);
         return new ResponseEntity<>(badRequest, HttpStatus.BAD_REQUEST );
