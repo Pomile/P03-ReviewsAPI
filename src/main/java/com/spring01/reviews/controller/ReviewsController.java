@@ -8,7 +8,6 @@ import com.spring01.reviews.service.ReviewService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 
@@ -67,7 +66,12 @@ public class ReviewsController {
      * @return The list of reviews.
      */
     @RequestMapping(value = "/reviews/products/{productId}", method = RequestMethod.GET)
-    public ResponseEntity<List<?>> listReviewsForProduct(@PathVariable("productId") Integer productId) {
-        throw new HttpServerErrorException(HttpStatus.NOT_IMPLEMENTED);
+    public ResponseEntity<Object> listReviewsForProduct(@PathVariable("productId") Long productId) {
+        Optional<Product> product = productService.findById(Math.toIntExact(productId));
+        if (product.isPresent()){
+            Optional<List<Review>> optionalReview = reviewService.findProductReviews(productId);
+            return new ResponseEntity<Object>(optionalReview.get(), HttpStatus.OK);
+        }
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found");
     }
 }

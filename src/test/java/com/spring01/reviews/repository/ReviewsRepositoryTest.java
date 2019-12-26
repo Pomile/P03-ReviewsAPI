@@ -1,5 +1,4 @@
 package com.spring01.reviews.repository;
-import com.spring01.reviews.DAO.ReviewDao;
 import com.spring01.reviews.config.DataConfig;
 import com.spring01.reviews.model.Product;
 import com.spring01.reviews.model.Review;
@@ -25,6 +24,7 @@ import javax.sql.DataSource;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -43,6 +43,7 @@ public class ReviewsRepositoryTest {
     private AnnotationConfigApplicationContext configApplicationContext;
     private Long productId;
     private Optional<Product> prod;
+    private Review review;
 
     @Before
     public void init() throws SQLException {
@@ -50,6 +51,8 @@ public class ReviewsRepositoryTest {
         System.err.println("Connected to" + con.getMetaData().getURL());
         configApplicationContext = new AnnotationConfigApplicationContext(DataConfig.class);
         Product product = configApplicationContext.getBean("productBean", Product.class);
+        Review review = configApplicationContext.getBean("reviewBean", Review.class);
+        this.review = review;
         entityManager.persist(product);
         Optional<Product> regProd = productRepository.findByName("Blue band");
         this.productId = regProd.get().getId();
@@ -58,13 +61,21 @@ public class ReviewsRepositoryTest {
 
     @Test
     public void save(){
-        System.err.println("ID: "+ productId);
-        Review review = configApplicationContext.getBean("reviewBean", Review.class);
-        review.setProductId(productId);
-        review.setProduct(this.prod.get());
-        entityManager.persist(review);
+       persistReview();
         Optional<Review> review1 = reviewsRepository.findByProductId(productId);
         assertThat(review1.get().getTitle()).isEqualTo(review.getTitle());
     }
+    @Test
+    public void findProductReviews(){
+        persistReview();
+        Optional<List<Review>> review1 = reviewsRepository.findAllByProductId(productId);
+        assertThat(review1.get().size()).isEqualTo(1);
+    }
 
+    private void persistReview(){
+
+        review.setProductId(productId);
+        review.setProduct(this.prod.get());
+        entityManager.persist(review);
+    }
 }

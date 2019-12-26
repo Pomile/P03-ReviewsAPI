@@ -22,6 +22,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -53,8 +55,11 @@ public class ReviewsControllerTest {
         review.setId(7L);
         product.setId(1L);
         review.setProduct(product);
+        List<Review> reviews = new ArrayList<Review>();
+        reviews.add(review);
         given(productRepository.findById(1L)).willReturn(java.util.Optional.of(product));
         given(reviewService.save(any())).willReturn(review);
+        given(reviewService.findProductReviews(any())).willReturn(java.util.Optional.of(reviews));
     }
     @Test
     public void createReviewForProduct() throws Exception {
@@ -113,5 +118,14 @@ public class ReviewsControllerTest {
                 .andExpect(status().is4xxClientError())
                 .andExpect(jsonPath("$.errors[0]").value("Invalid input for /hhghgdh")
                 );
+    }
+
+    @Test
+    public void shouldFindProductReviews() throws Exception {
+
+        mvc.perform(get(new URI("/reviews/products/1"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
     }
 }

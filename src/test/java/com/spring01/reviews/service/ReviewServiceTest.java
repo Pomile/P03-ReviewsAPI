@@ -16,6 +16,12 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 
+import javax.validation.constraints.Min;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 
@@ -46,4 +52,18 @@ public class ReviewServiceTest {
         Review saveRev = reviewService.save(rev);
        assertEquals(newReview.getId(), saveRev.getId());
     }
+
+    @Test
+    public void findProductReviews(){
+        List<Review> reviews = new ArrayList<Review>();
+        Review newReview = rev;
+        newReview.setId(6L);
+        reviews.add(newReview);
+        Mockito.when(
+                reviewsRepository.findAllByProductId(any()))
+                .thenReturn(java.util.Optional.of(reviews));
+        Optional<List<Review>> reviews1 = reviewsRepository.findAllByProductId(1L);
+        assertEquals(1, reviews1.get().size());
+    }
+
 }
