@@ -6,13 +6,14 @@ import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.util.List;
 
 @Entity
 @Table(name = "reviews")
 public class Review implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
+    @Column(name = "review_id")
     private Long Id;
 
     @NotNull(message = "title field must be provided")
@@ -41,6 +42,9 @@ public class Review implements Serializable {
     @JoinColumn(name="product_id", insertable = false, updatable = false)
     @JsonIgnore
     private Product product;
+
+    @OneToMany(fetch=FetchType.EAGER, mappedBy="review")
+    List<Comment> comments;
 
     public Review() { }
 
@@ -112,5 +116,13 @@ public class Review implements Serializable {
 
     public void setProductId(Long productId) {
         this.productId = productId;
+    }
+
+    public List<Comment> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<Comment> comments) {
+        this.comments = comments;
     }
 }

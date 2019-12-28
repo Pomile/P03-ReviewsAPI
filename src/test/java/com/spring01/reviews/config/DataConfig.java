@@ -1,5 +1,6 @@
 package com.spring01.reviews.config;
 
+import com.spring01.reviews.model.Comment;
 import com.spring01.reviews.model.Product;
 import com.spring01.reviews.model.Review;
 import org.springframework.context.annotation.Bean;
@@ -28,5 +29,14 @@ public class DataConfig {
         review.setSummary("My experience with i phone is awesome");
 
         return review;
+    }
+
+    @Bean
+    public Comment commentBean(){
+        Comment comment = new Comment();
+        comment.setTitle("Great product");
+        comment.setText("You are absolutely right. Iphone phones are fun with incredible graphics display");
+
+        return comment;
     }
 }

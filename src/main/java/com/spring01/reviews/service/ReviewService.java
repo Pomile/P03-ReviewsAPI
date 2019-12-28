@@ -35,4 +35,14 @@ public class ReviewService{
     public Optional<List<Review>> findProductReviews(Long productId){
         return reviewsRepository.findAllByProductId(productId);
     }
+
+
+    /**
+     * Find a product reviews
+     * @param reviewId
+     * @Return a list of product reviews
+     **/
+    public Optional<Review> findReview(Long reviewId){
+         return reviewsRepository.findById(reviewId);
+    }
 }
