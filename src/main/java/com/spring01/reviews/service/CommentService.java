@@ -5,6 +5,9 @@ import com.spring01.reviews.repository.CommentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Optional;
+
 /**
  * Implements the comment service create, read
  * information about comments.
@@ -26,6 +29,15 @@ public class CommentService{
 
     public Comment save(Comment comment){
         return commentRepository.save(comment);
+    }
+
+    /**
+     * Find a review comments
+     * @param reviewId
+     * @return list of comments
+     * */
+    public Optional<List<Comment>> findReviewComments(Long reviewId){
+        return commentRepository.findAllByReviewId(reviewId);
     }
 
 }

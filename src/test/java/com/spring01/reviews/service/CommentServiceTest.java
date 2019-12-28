@@ -16,6 +16,10 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 
@@ -47,5 +51,18 @@ public class CommentServiceTest {
                 .thenReturn(comment);
         Comment commentRev = commentService.save(newComment);
         assertEquals(newComment.getId(), comment.getId());
+    }
+
+    @Test
+    public void findReviewComments(){
+        List<Comment> comments = new ArrayList<Comment>();
+        Comment newComment = comment;
+        newComment.setId(6L);
+        comments.add(newComment);
+        Mockito.when(
+                commentRepository.findAllByReviewId(any()))
+                .thenReturn(java.util.Optional.of(comments));
+        Optional<List<Comment>> comments1 = commentService.findReviewComments(1L);
+        assertEquals(1, comments1.get().size());
     }
 }
