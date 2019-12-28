@@ -22,6 +22,7 @@ import javax.persistence.EntityManager;
 import javax.sql.DataSource;
 
 import java.sql.Connection;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -70,6 +71,13 @@ public class CommentRepositoryTest {
         persistComment();
         Optional<Comment> comment1 = commentRepository.findByReviewId(reviewId);
         assertThat(comment1.get().getTitle()).isEqualTo(comment.getTitle());
+    }
+
+    @Test
+    public void findProductReviews(){
+        persistComment();
+        Optional<List<Comment>> comment1 = commentRepository.findAllByReviewId(reviewId);
+        assertThat(comment1.get().size()).isEqualTo(1);
     }
 
     private void persistComment(){
