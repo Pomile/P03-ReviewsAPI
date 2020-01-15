@@ -1,5 +1,5 @@
 # Reviews API 
-Supports operations for writing reviews and listing reviews for a product but with no sorting or filtering.
+This application allow a user to review a product and also add comment to the review of a product.
 
 ### Prerequisites
 MySQL needs to be installed and configured. Instructions provided separately.
