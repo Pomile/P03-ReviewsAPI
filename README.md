@@ -1,8 +1,10 @@
 # Reviews API 
-This application allow a user to review a product and also add comment to the review of a product.
+Review API is an application that gives customers the ability to review a particular product which serves as a feedback to the product owner
 
 ### Prerequisites
-MySQL needs to be installed and configured. Instructions provided separately.
+* PostgreSQL needs to be installed and configured. Instructions provided separately.
+* Java 8 SDK
+* IntelliJ IDE
 
 ### Getting Started
 * Configure the MySQL Datasource in application.properties.
